@@ -1,0 +1,526 @@
+<!doctype html>
+<html lang="nl">
+<head><meta name="robots" content="noindex,nofollow">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ScrapeHunter — Weeklijst</title>
+<style>
+  :root{
+    color-scheme:light dark;
+    /* warm neutral scale — chosen, subtly biased toward the orange accent */
+    --ground:#F5F2ED; --surface:#FFFFFF; --surface-2:#F1ECE5; --surface-3:#E7E0D6;
+    --ink:#211C17; --muted:#655C52; --faint:#948A7C; --border:#E7E1D8; --border-strong:#D8D0C4;
+    --accent:#C6551F; --accent-2:#DD6A34; --accent-weak:rgba(198,85,31,.10); --on-accent:#FFFFFF;
+    --fresh:#0C8A80; --fresh-weak:rgba(12,138,128,.12);
+    --meter:#B2A593; --meter-track:#E7E0D6;
+    --st-call:#5A6673; --st-call-bg:rgba(90,102,115,.12);
+    --st-called:#2F63D6; --st-called-bg:rgba(47,99,214,.12);
+    --st-appt:#B4740F; --st-appt-bg:rgba(180,116,15,.14);
+    --st-won:#12855A; --st-won-bg:rgba(18,133,90,.14);
+    --st-no:#B0453F; --st-no-bg:rgba(176,69,63,.12);
+    --good:#12855A; --warn:#B4740F; --crit:#C6413B;
+    --shadow:0 1px 1px rgba(38,28,16,.03),0 2px 5px rgba(38,28,16,.05);
+    --shadow-lg:0 1px 2px rgba(38,28,16,.05),0 10px 28px rgba(38,28,16,.10);
+    --ring:0 0 0 3px var(--accent-weak);
+    --mono:ui-monospace,"SF Mono",SFMono-Regular,"JetBrains Mono",Menlo,"Cascadia Mono","Roboto Mono",monospace;
+    --sans:ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --r:12px; --r-sm:8px; --r-xs:6px;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{
+      color-scheme:dark;
+      --ground:#141210; --surface:#1C1915; --surface-2:#232019; --surface-3:#2C2820;
+      --ink:#ECE6DD; --muted:#A99E8F; --faint:#7C7264; --border:#2E2A22; --border-strong:#3A352B;
+      --accent:#E8743C; --accent-2:#F58A54; --accent-weak:rgba(232,116,60,.16); --on-accent:#1A0E06;
+      --fresh:#2FB4A7; --fresh-weak:rgba(47,180,167,.16);
+      --meter:#6E6555; --meter-track:#2C2820;
+      --st-call:#95A1B0; --st-call-bg:rgba(149,161,176,.14);
+      --st-called:#5C90FF; --st-called-bg:rgba(92,144,255,.15);
+      --st-appt:#E0A33C; --st-appt-bg:rgba(224,163,60,.15);
+      --st-won:#33C489; --st-won-bg:rgba(51,196,137,.15);
+      --st-no:#E0736C; --st-no-bg:rgba(224,115,108,.14);
+      --good:#33C489; --warn:#E0A33C; --crit:#F0736C;
+      --shadow:0 1px 2px rgba(0,0,0,.40),0 3px 12px rgba(0,0,0,.32);
+      --shadow-lg:0 2px 4px rgba(0,0,0,.45),0 12px 32px rgba(0,0,0,.50);
+    }
+  }
+  :root[data-theme="light"]{
+    color-scheme:light;
+    --ground:#F5F2ED; --surface:#FFFFFF; --surface-2:#F1ECE5; --surface-3:#E7E0D6;
+    --ink:#211C17; --muted:#655C52; --faint:#948A7C; --border:#E7E1D8; --border-strong:#D8D0C4;
+    --accent:#C6551F; --accent-2:#DD6A34; --accent-weak:rgba(198,85,31,.10); --on-accent:#FFFFFF;
+    --fresh:#0C8A80; --fresh-weak:rgba(12,138,128,.12);
+    --meter:#B2A593; --meter-track:#E7E0D6;
+    --st-call:#5A6673; --st-call-bg:rgba(90,102,115,.12);
+    --st-called:#2F63D6; --st-called-bg:rgba(47,99,214,.12);
+    --st-appt:#B4740F; --st-appt-bg:rgba(180,116,15,.14);
+    --st-won:#12855A; --st-won-bg:rgba(18,133,90,.14);
+    --st-no:#B0453F; --st-no-bg:rgba(176,69,63,.12);
+    --good:#12855A; --warn:#B4740F; --crit:#C6413B;
+    --shadow:0 1px 1px rgba(38,28,16,.03),0 2px 5px rgba(38,28,16,.05);
+    --shadow-lg:0 1px 2px rgba(38,28,16,.05),0 10px 28px rgba(38,28,16,.10);
+  }
+  :root[data-theme="dark"]{
+    color-scheme:dark;
+    --ground:#141210; --surface:#1C1915; --surface-2:#232019; --surface-3:#2C2820;
+    --ink:#ECE6DD; --muted:#A99E8F; --faint:#7C7264; --border:#2E2A22; --border-strong:#3A352B;
+    --accent:#E8743C; --accent-2:#F58A54; --accent-weak:rgba(232,116,60,.16); --on-accent:#1A0E06;
+    --fresh:#2FB4A7; --fresh-weak:rgba(47,180,167,.16);
+    --meter:#6E6555; --meter-track:#2C2820;
+    --st-call:#95A1B0; --st-call-bg:rgba(149,161,176,.14);
+    --st-called:#5C90FF; --st-called-bg:rgba(92,144,255,.15);
+    --st-appt:#E0A33C; --st-appt-bg:rgba(224,163,60,.15);
+    --st-won:#33C489; --st-won-bg:rgba(51,196,137,.15);
+    --st-no:#E0736C; --st-no-bg:rgba(224,115,108,.14);
+    --good:#33C489; --warn:#E0A33C; --crit:#F0736C;
+    --shadow:0 1px 2px rgba(0,0,0,.40),0 3px 12px rgba(0,0,0,.32);
+    --shadow-lg:0 2px 4px rgba(0,0,0,.45),0 12px 32px rgba(0,0,0,.50);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0}
+  body{
+    background:var(--ground); color:var(--ink); font-family:var(--sans);
+    font-size:13.5px; line-height:1.55; font-weight:400;
+    -webkit-font-smoothing:antialiased; text-rendering:optimizeLegibility;
+    padding:26px clamp(16px,4vw,40px) 64px;
+  }
+  .wrap{max-width:1180px; margin:0 auto}
+  a{color:inherit}
+
+  /* ---------- Header ---------- */
+  .top{display:flex; align-items:flex-start; justify-content:space-between; gap:20px; flex-wrap:wrap; margin-bottom:22px}
+  .brand{display:flex; align-items:center; gap:13px}
+  .mark{display:inline-flex; width:34px; height:34px; flex:none; color:var(--accent)}
+  .mark svg{width:34px; height:34px}
+  .brand-text{display:flex; flex-direction:column}
+  .brand h1{font-size:19px; margin:0; letter-spacing:-.02em; font-weight:680; line-height:1.08}
+  .brand .sub{font-family:var(--mono); font-size:10px; letter-spacing:.17em; text-transform:uppercase; color:var(--faint); margin-top:3px}
+  .top-right{display:flex; align-items:center; gap:10px; flex-wrap:wrap}
+  .iconbtn{display:inline-flex; align-items:center; justify-content:center; width:38px; height:38px; border-radius:var(--r-sm); border:1px solid var(--border); background:var(--surface); color:var(--muted); cursor:pointer; box-shadow:var(--shadow); transition:color .15s,border-color .15s,background .15s}
+  .iconbtn:hover{color:var(--ink); border-color:var(--border-strong); background:var(--surface-2)}
+  .iconbtn svg{width:18px; height:18px}
+
+  .meta{font-family:var(--mono); font-size:11px; color:var(--muted); margin:0 0 22px; display:flex; gap:7px 14px; flex-wrap:wrap; align-items:center; letter-spacing:.01em; font-variant-numeric:tabular-nums}
+  .meta b{color:var(--ink); font-weight:600}
+  .meta .sep{color:var(--border-strong)}
+
+  /* ---------- KPI ---------- */
+  .kpis{display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:22px}
+  @media(max-width:860px){.kpis{grid-template-columns:repeat(2,1fr)}}
+  @media(max-width:460px){.kpis{grid-template-columns:1fr}}
+  .kpi{background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:18px 18px 16px; box-shadow:var(--shadow); display:flex; flex-direction:column; gap:10px}
+  .kpi .lbl{font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.13em; text-transform:uppercase; color:var(--muted); display:flex; align-items:center; min-height:12px}
+  .kpi .val{font-size:40px; line-height:.92; font-weight:640; letter-spacing:-.025em; color:var(--ink); font-variant-numeric:tabular-nums}
+  .kpi .val small{font-size:15px; font-weight:600; color:var(--faint); letter-spacing:0; margin-left:1px}
+  .kpi .note{font-size:11.5px; color:var(--muted); line-height:1.4}
+  .kpi.accent .val{color:var(--accent)}
+  .kpi.accent .lbl::before{content:""; width:6px; height:6px; border-radius:50%; background:var(--accent); margin-right:8px; box-shadow:0 0 0 3px var(--accent-weak)}
+
+  /* ---------- Controls ---------- */
+  .panel{background:var(--surface); border:1px solid var(--border); border-radius:var(--r); box-shadow:var(--shadow); overflow:hidden}
+  .controls{display:flex; gap:10px; align-items:center; flex-wrap:wrap; padding:14px; border-bottom:1px solid var(--border)}
+  .search{flex:1 1 240px; display:flex; align-items:center; gap:9px; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-sm); padding:0 12px; transition:border-color .15s,box-shadow .15s}
+  .search:focus-within{border-color:var(--accent); box-shadow:var(--ring)}
+  .search svg{width:15px; height:15px; color:var(--faint); flex:none}
+  .search input{flex:1; border:0; background:transparent; color:var(--ink); font-size:13.5px; padding:10px 0; outline:none; font-family:var(--sans)}
+  .search input::placeholder{color:var(--faint)}
+  select{appearance:none; background:var(--surface-2); border:1px solid var(--border); color:var(--ink); border-radius:var(--r-sm); padding:10px 32px 10px 12px; font-size:13px; font-family:var(--sans); font-weight:500; cursor:pointer; transition:border-color .15s,box-shadow .15s;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%23948A7C' stroke-width='2.4'><path d='M6 9l6 6 6-6'/></svg>"); background-repeat:no-repeat; background-position:right 11px center}
+  select:hover{border-color:var(--border-strong)}
+  select:focus-visible{border-color:var(--accent); box-shadow:var(--ring); outline:none}
+  .seg{display:inline-flex; background:var(--surface-2); border:1px solid var(--border); border-radius:var(--r-sm); padding:3px; gap:2px}
+  .seg button{border:0; background:transparent; color:var(--muted); font-family:var(--mono); font-size:10.5px; font-weight:600; letter-spacing:.06em; text-transform:uppercase; padding:6px 11px; border-radius:var(--r-xs); cursor:pointer; transition:color .15s,background .15s}
+  .seg button:hover{color:var(--ink)}
+  .seg button[aria-pressed="true"]{background:var(--surface); color:var(--ink); box-shadow:0 1px 2px rgba(38,28,16,.14)}
+  .toggle{display:inline-flex; align-items:center; gap:9px; font-size:12.5px; color:var(--muted); cursor:pointer; user-select:none; white-space:nowrap; transition:color .15s}
+  .toggle:hover{color:var(--ink)}
+  .toggle input{position:absolute; opacity:0; pointer-events:none}
+  .toggle .track{width:36px; height:20px; border-radius:999px; background:var(--surface-3); border:1px solid var(--border); position:relative; transition:background .18s,border-color .18s}
+  .toggle .track::after{content:""; position:absolute; top:2px; left:2px; width:14px; height:14px; border-radius:50%; background:var(--faint); transition:transform .18s,background .18s}
+  .toggle input:checked + .track{background:var(--accent-weak); border-color:color-mix(in srgb,var(--accent) 40%,var(--border))}
+  .toggle input:checked + .track::after{transform:translateX(16px); background:var(--accent)}
+  .toggle input:focus-visible + .track{box-shadow:var(--ring)}
+  .btn{display:inline-flex; align-items:center; gap:7px; border:1px solid var(--border); background:var(--surface-2); color:var(--ink); border-radius:var(--r-sm); padding:10px 14px; font-size:13px; font-weight:560; cursor:pointer; font-family:var(--sans); transition:border-color .15s,background .15s,box-shadow .15s}
+  .btn:hover{border-color:var(--border-strong); background:var(--surface-3)}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:var(--on-accent); box-shadow:0 1px 2px rgba(38,28,16,.14)}
+  .btn.primary:hover{background:var(--accent-2); border-color:var(--accent-2)}
+  .btn svg{width:15px; height:15px}
+  .spacer{flex:1}
+
+  /* ---------- Table ---------- */
+  .tablewrap{overflow-x:auto}
+  table{width:100%; border-collapse:collapse; min-width:820px}
+  thead th{position:sticky; top:0; z-index:2; background:var(--surface); text-align:left; font-family:var(--mono); font-size:10px; letter-spacing:.11em; text-transform:uppercase; color:var(--muted); font-weight:600; padding:13px 16px; border-bottom:1px solid var(--border); white-space:nowrap}
+  thead th.sortable{cursor:pointer; transition:color .15s}
+  thead th.sortable:hover{color:var(--ink)}
+  th .arr{display:inline-block; margin-left:3px; font-size:9px; color:var(--accent); vertical-align:1px}
+  tbody td{padding:14px 16px; border-bottom:1px solid var(--border); vertical-align:middle}
+  tbody tr{transition:background .12s}
+  tbody tr:last-child td{border-bottom:0}
+  tbody tr:hover{background:var(--surface-2)}
+  tbody tr.fresh td:first-child{box-shadow:inset 2px 0 0 var(--fresh)}
+  .co{font-weight:620; letter-spacing:-.01em; color:var(--ink)}
+  .colink{display:inline-flex; align-items:center; gap:5px; color:inherit; text-decoration:none; border-bottom:1px solid transparent; transition:color .15s,border-color .15s}
+  .colink:hover{color:var(--accent); border-bottom-color:color-mix(in srgb,var(--accent) 45%,transparent)}
+  .colink svg{width:11px; height:11px; color:var(--faint); flex:none; opacity:0; transition:opacity .15s,color .15s}
+  .colink:hover svg,.colink:focus-visible svg{opacity:1; color:var(--accent)}
+  .role{display:flex; align-items:center; gap:8px; flex-wrap:wrap}
+  .rolename{color:var(--ink)}
+  .rowmeta{display:flex; align-items:center; gap:8px; flex-wrap:wrap; margin-top:6px}
+  .joblink{display:inline-flex; align-items:center; gap:6px; font-family:var(--mono); font-size:10px; font-weight:600; letter-spacing:.07em; text-transform:uppercase; color:var(--accent); background:transparent; border:1px solid color-mix(in srgb,var(--accent) 32%,var(--border)); border-radius:var(--r-xs); padding:4px 10px; text-decoration:none; white-space:nowrap; transition:background .15s,border-color .15s,color .15s}
+  .joblink:hover{background:var(--accent-weak); border-color:color-mix(in srgb,var(--accent) 55%,var(--border))}
+  .joblink .arw{transition:transform .15s}
+  .joblink:hover .arw,.joblink:focus-visible .arw{transform:translateX(2px)}
+  .num{font-family:var(--mono); font-variant-numeric:tabular-nums}
+  .city{color:var(--muted)}
+  .when{font-family:var(--mono); font-size:12px; color:var(--muted); white-space:nowrap; font-variant-numeric:tabular-nums}
+  .chip{display:inline-flex; align-items:center; gap:5px; font-family:var(--mono); font-size:9.5px; font-weight:600; letter-spacing:.09em; text-transform:uppercase; padding:2px 8px; border-radius:999px; border:1px solid var(--border-strong); color:var(--muted); white-space:nowrap; background:var(--surface)}
+  .m-target{color:var(--fresh); border-color:color-mix(in srgb,var(--fresh) 38%,var(--border-strong)); background:var(--fresh-weak)}
+  .m-adjacent{color:var(--muted)}
+  .m-broad{color:var(--faint)}
+  .fresh-badge{display:inline-flex; align-items:center; gap:5px; font-family:var(--mono); font-size:9px; letter-spacing:.1em; color:var(--fresh); background:var(--fresh-weak); border-radius:999px; padding:2px 8px; font-weight:700}
+  .fresh-badge .d{width:5px; height:5px; border-radius:50%; background:var(--fresh); box-shadow:0 0 0 3px color-mix(in srgb,var(--fresh) 22%,transparent)}
+
+  .score{display:flex; align-items:center; gap:10px; min-width:108px}
+  .score .bar{position:relative; flex:1; height:5px; border-radius:999px; background:var(--meter-track)}
+  .score .fill{position:relative; height:100%; min-width:7px; border-radius:999px; background:var(--accent)}
+  .score .fill::after{content:""; position:absolute; right:-1px; top:50%; transform:translateY(-50%); width:7px; height:7px; border-radius:50%; background:var(--accent); box-shadow:0 0 0 2px var(--surface)}
+  .score .fill.mid{background:var(--meter)}
+  .score .fill.mid::after{background:var(--meter)}
+  .score .n{font-family:var(--mono); font-size:12.5px; font-weight:600; font-variant-numeric:tabular-nums; color:var(--ink); width:30px; text-align:right}
+
+  .statuscell{white-space:nowrap}
+  .statuspill{appearance:none; border:1px solid transparent; border-radius:999px; padding:7px 28px 7px 12px; font-family:var(--mono); font-size:11px; font-weight:600; letter-spacing:.02em; cursor:pointer; transition:border-color .15s,box-shadow .15s;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='11' height='11' viewBox='0 0 24 24' fill='none' stroke='currentColor' stroke-width='2.6'><path d='M6 9l6 6 6-6'/></svg>"); background-repeat:no-repeat; background-position:right 9px center}
+  .s-call{color:var(--st-call); background-color:var(--st-call-bg); border-color:color-mix(in srgb,var(--st-call) 26%,transparent)}
+  .s-called{color:var(--st-called); background-color:var(--st-called-bg); border-color:color-mix(in srgb,var(--st-called) 30%,transparent)}
+  .s-appt{color:var(--st-appt); background-color:var(--st-appt-bg); border-color:color-mix(in srgb,var(--st-appt) 32%,transparent)}
+  .s-won{color:var(--st-won); background-color:var(--st-won-bg); border-color:color-mix(in srgb,var(--st-won) 32%,transparent)}
+  .s-no{color:var(--st-no); background-color:var(--st-no-bg); border-color:color-mix(in srgb,var(--st-no) 28%,transparent)}
+
+  .foot{display:flex; align-items:center; justify-content:space-between; gap:14px; flex-wrap:wrap; padding:13px 16px; color:var(--muted); font-size:12px}
+  .foot .count{font-variant-numeric:tabular-nums}
+  .foot .count b{color:var(--ink); font-weight:600}
+  #savednote{font-family:var(--mono); font-size:11px; letter-spacing:.02em}
+  .empty{padding:44px 16px; text-align:center; color:var(--muted); font-size:13px}
+
+  .legend{margin-top:22px; display:flex; gap:9px 20px; flex-wrap:wrap; align-items:center; color:var(--muted); font-size:12px}
+  .legend .grp{display:inline-flex; align-items:center; gap:7px}
+  .note-block{margin-top:16px; background:var(--surface); border:1px solid var(--border); border-radius:var(--r); padding:16px 18px; box-shadow:var(--shadow); color:var(--muted); font-size:12.5px; line-height:1.65}
+  .note-block b{color:var(--ink); font-weight:600}
+
+  @media (prefers-reduced-motion:no-preference){
+    tbody tr{animation:rise .32s cubic-bezier(.2,.7,.2,1) both}
+  }
+  @keyframes rise{from{opacity:0; transform:translateY(5px)}to{opacity:1; transform:none}}
+  @media (prefers-reduced-motion:reduce){
+    *{animation-duration:.001ms !important; animation-iteration-count:1 !important; transition-duration:.001ms !important}
+  }
+  :focus-visible{outline:2px solid var(--accent); outline-offset:2px; border-radius:5px}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <div class="brand">
+      <span class="mark" aria-hidden="true"><svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.6"><circle cx="16" cy="16" r="9.5"/><path d="M16 2.5v6M16 23.5v6M2.5 16h6M23.5 16h6" stroke-linecap="round"/><circle cx="16" cy="16" r="2.4" fill="currentColor" stroke="none"/></svg></span>
+      <div class="brand-text">
+        <h1>ScrapeHunter</h1>
+        <div class="sub">Weeklijst · IT-leads</div>
+      </div>
+    </div>
+    <div class="top-right">
+      <button class="iconbtn" id="themeBtn" title="Wissel thema" aria-label="Wissel licht/donker thema"></button>
+    </div>
+  </header>
+
+  <p class="meta">
+    <span>Regio <b>Randstad</b></span><span class="sep">·</span>
+    <span>Veld <b>IT</b></span><span class="sep">·</span>
+    <span>Run <b>21 jul 2026</b></span><span class="sep">·</span>
+    <span>Versheid <b>≤ 30 dagen</b></span>
+  </p>
+
+  <section class="kpis" id="kpis"></section>
+
+  <section class="panel">
+    <div class="controls">
+      <label class="search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4-4"/></svg>
+        <input id="q" type="search" placeholder="Zoek op bedrijf of functie…" autocomplete="off">
+      </label>
+      <select id="city" aria-label="Filter op stad"></select>
+      <select id="recency" aria-label="Filter op recentheid (periode)">
+        <option value="" data-days="">Alle periodes</option>
+        <option value="3" data-days="3">≤ 3 dgn</option>
+        <option value="7" data-days="7">≤ 7 dgn</option>
+        <option value="14" data-days="14">≤ 14 dgn</option>
+        <option value="30" data-days="30">≤ 30 dgn</option>
+      </select>
+      <div class="seg" id="matchSeg" role="group" aria-label="Filter op matchtype">
+        <button data-m="all" aria-pressed="true">Alle</button>
+        <button data-m="target" aria-pressed="false">Doelfunctie</button>
+        <button data-m="adjacent" aria-pressed="false">Gerelateerd</button>
+        <button data-m="broad" aria-pressed="false">Breed</button>
+      </div>
+      <label class="toggle"><input type="checkbox" id="freshOnly"><span class="track"></span>Alleen vers</label>
+      <span class="spacer"></span>
+      <button class="btn" id="resetBtn" title="Reset filters">Reset</button>
+      <button class="btn primary" id="csvBtn">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 3v12m0 0l-4-4m4 4l4-4M4 21h16"/></svg>
+        Export Excel
+      </button>
+    </div>
+
+    <div class="tablewrap">
+      <table>
+        <thead>
+          <tr>
+            <th class="sortable" data-sort="company">Bedrijf <span class="arr"></span></th>
+            <th class="sortable" data-sort="role">Functie <span class="arr"></span></th>
+            <th class="sortable" data-sort="city">Stad <span class="arr"></span></th>
+            <th class="sortable" data-sort="date">Geplaatst <span class="arr"></span></th>
+            <th class="sortable" data-sort="score">Relevantie <span class="arr"></span></th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody id="rows"></tbody>
+      </table>
+    </div>
+
+    <div class="foot">
+      <span class="count"><b id="shown">0</b> van <b id="total">0</b> leads getoond</span>
+      <span id="savednote"></span>
+    </div>
+  </section>
+
+  <div class="legend">
+    <span class="grp"><span class="fresh-badge"><span class="d"></span>VERS</span> nieuw deze week (≤7 dgn)</span>
+    <span class="grp"><span class="chip m-target">DOELFUNCTIE</span> exacte doelfunctie</span>
+    <span class="grp"><span class="chip m-adjacent">GERELATEERD</span> aanverwante rol</span>
+    <span class="grp"><span class="chip m-broad">BREED</span> breed relevant</span>
+  </div>
+
+  <div class="note-block">
+    <b>Over deze lijst.</b> Verse IT-vacatures van bedrijven in de Randstad die deze week personeel zoeken —
+    een vacature is een koopsignaal. Klik op <b>Bekijk vacature</b> om de originele vacature te openen,
+    of op de bedrijfsnaam voor de bedrijfssite.
+    De kolom <b>Status</b> vul je zelf in; die blijft bewaard in deze browser en wordt bij een nieuwe
+    weeklevering <b>nooit overschreven</b>. Strikt op bedrijfsniveau — <b>geen persoonsgegevens</b> (AVG).
+  </div>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var WEEK_REF = new Date("2026-07-21T00:00:00");
+  var DAY = 86400000;
+
+  var LEADS = [{"company": "DRW", "website": "https://www.drw.com", "role": "Software Developer Intern", "city": "Amsterdam", "date": "2026-07-13", "url": "https://job-boards.greenhouse.io/drweng/jobs/8020364", "score": 7.1, "match": "target", "fresh": false}, {"company": "DRW", "website": "https://www.drw.com", "role": "Trading Systems Engineer", "city": "Amsterdam", "date": "2026-07-14", "url": "https://job-boards.greenhouse.io/drweng/jobs/8064737", "score": 2.9, "match": "adjacent", "fresh": false}, {"company": "Workwize", "website": "https://www.goworkwize.com", "role": "Business Development Representative - Dutch Speaking | Amsterdam Hybrid", "city": "Amsterdam", "date": "2026-07-13", "url": "https://job-boards.eu.greenhouse.io/workwize/jobs/4925938101", "score": 2.0, "match": "adjacent", "fresh": false}, {"company": "Workwize", "website": "https://www.goworkwize.com", "role": "Head of marketing", "city": "Amsterdam", "date": "2026-07-06", "url": "https://job-boards.eu.greenhouse.io/workwize/jobs/4911423101", "score": 2.4, "match": "adjacent", "fresh": false}, {"company": "Workwize", "website": "https://www.goworkwize.com", "role": "Principal UX Designer", "city": "Amsterdam (Hybrid)", "date": "2026-07-02", "url": "https://job-boards.eu.greenhouse.io/workwize/jobs/4906994101", "score": 2.4, "match": "adjacent", "fresh": false}, {"company": "Workwize", "website": "https://www.goworkwize.com", "role": "Senior HR Business Partner", "city": "Amsterdam (Hybrid)", "date": "2026-07-09", "url": "https://job-boards.eu.greenhouse.io/workwize/jobs/4906834101", "score": 2.7, "match": "adjacent", "fresh": false}, {"company": "Adyen", "website": "https://www.adyen.com", "role": "Engineering Lead, Terminal Fleet Management", "city": "Amsterdam", "date": "2026-07-15", "url": "https://job-boards.greenhouse.io/adyen/jobs/7740169", "score": 2.4, "match": "adjacent", "fresh": false}, {"company": "Adyen", "website": "https://www.adyen.com", "role": "Global Partner Engineering Manager, Payments", "city": "Amsterdam", "date": "2026-06-24", "url": "https://job-boards.greenhouse.io/adyen/jobs/7454792", "score": 2.7, "match": "adjacent", "fresh": false}, {"company": "Adyen", "website": "https://www.adyen.com", "role": "Infrastructure Engineer (RDS)", "city": "Amsterdam", "date": "2026-07-17", "url": "https://job-boards.greenhouse.io/adyen/jobs/7407157", "score": 4.4, "match": "adjacent", "fresh": false}, {"company": "Adyen", "website": "https://www.adyen.com", "role": "Senior Service Designer - Platform Engineering", "city": "Amsterdam", "date": "2026-07-08", "url": "https://job-boards.greenhouse.io/adyen/jobs/7471397", "score": 2.2, "match": "target", "fresh": false}, {"company": "Adyen", "website": "https://www.adyen.com", "role": "Senior Software Engineer, Knowledge Engineering", "city": "Amsterdam", "date": "2026-07-10", "url": "https://job-boards.greenhouse.io/adyen/jobs/7771629", "score": 7.1, "match": "target", "fresh": false}, {"company": "Adyen", "website": "https://www.adyen.com", "role": "Software Engineer II - ML / AI", "city": "Amsterdam", "date": "2026-07-20", "url": "https://job-boards.greenhouse.io/adyen/jobs/8074355", "score": 6.2, "match": "target", "fresh": false}, {"company": "Adyen", "website": "https://www.adyen.com", "role": "Team Lead - IT support EMEA", "city": "Amsterdam", "date": "2026-07-17", "url": "https://job-boards.greenhouse.io/adyen/jobs/8059165", "score": 2.2, "match": "broad", "fresh": false}, {"company": "Together AI", "website": "https://www.together.ai", "role": "Software Engineer(Amsterdam)", "city": "Amsterdam", "date": "2026-06-25", "url": "https://job-boards.greenhouse.io/togetherai/jobs/5169470007", "score": 6.4, "match": "target", "fresh": false}, {"company": "Creative Fabrica", "website": "https://www.creativefabrica.com", "role": "Senior Data Analyst", "city": "Remote", "date": "2026-07-21", "url": "https://job-boards.eu.greenhouse.io/creativefabrica/jobs/4933376101", "score": 2.2, "match": "adjacent", "fresh": false}, {"company": "IMC Trading", "website": "https://www.imc.com", "role": "2027 - FPGA Intern - IIT Bombay", "city": "Amsterdam", "date": "2026-07-03", "url": "https://job-boards.eu.greenhouse.io/imc/jobs/4860306101", "score": 2.4, "match": "broad", "fresh": false}, {"company": "IMC Trading", "website": "https://www.imc.com", "role": "2027 - Quant Research Intern - IIT Bombay", "city": "Amsterdam", "date": "2026-07-02", "url": "https://job-boards.eu.greenhouse.io/imc/jobs/4860277101", "score": 3.3, "match": "broad", "fresh": false}, {"company": "IMC Trading", "website": "https://www.imc.com", "role": "2027 - Quant Research Intern - IIT Delhi", "city": "Amsterdam", "date": "2026-07-06", "url": "https://job-boards.eu.greenhouse.io/imc/jobs/4917441101", "score": 3.3, "match": "broad", "fresh": false}, {"company": "IMC Trading", "website": "https://www.imc.com", "role": "HPC Systems Architect", "city": "Amsterdam", "date": "2026-06-29", "url": "https://job-boards.eu.greenhouse.io/imc/jobs/4742838101", "score": 4.4, "match": "broad", "fresh": false}, {"company": "IMC Trading", "website": "https://www.imc.com", "role": "Machine Learning Research Intern - Summer 2027 - Amsterdam", "city": "Amsterdam", "date": "2026-07-06", "url": "https://job-boards.eu.greenhouse.io/imc/jobs/4912874101", "score": 3.8, "match": "adjacent", "fresh": false}, {"company": "IMC Trading", "website": "https://www.imc.com", "role": "Technology Recruiter", "city": "Amsterdam", "date": "2026-06-26", "url": "https://job-boards.eu.greenhouse.io/imc/jobs/4904706101", "score": 2.2, "match": "broad", "fresh": false}, {"company": "Backbase", "website": "https://www.backbase.com", "role": "Distinguished Engineer", "city": "Amsterdam", "date": "2026-07-08", "url": "https://job-boards.greenhouse.io/workatbackbase/jobs/7941969", "score": 2.0, "match": "adjacent", "fresh": false}, {"company": "JetBrains", "website": "https://www.jetbrains.com", "role": "Business Development Manager (Commercial Programs)", "city": "Amsterdam", "date": "2026-07-02", "url": "https://job-boards.eu.greenhouse.io/jetbrains/jobs/4899248101", "score": 2.2, "match": "broad", "fresh": false}, {"company": "JetBrains", "website": "https://www.jetbrains.com", "role": "Developer Advocate (Database)", "city": "Amsterdam", "date": "2026-07-17", "url": "https://job-boards.eu.greenhouse.io/jetbrains/jobs/4918398101", "score": 4.2, "match": "adjacent", "fresh": false}, {"company": "JetBrains", "website": "https://www.jetbrains.com", "role": "Global Indirect Tax Manager", "city": "Amsterdam", "date": "2026-07-15", "url": "https://job-boards.eu.greenhouse.io/jetbrains/jobs/4927313101", "score": 2.2, "match": "adjacent", "fresh": false}, {"company": "JetBrains", "website": "https://www.jetbrains.com", "role": "Head of JS/TS Ecosystem", "city": "Amsterdam", "date": "2026-06-22", "url": "https://job-boards.eu.greenhouse.io/jetbrains/jobs/4764092101", "score": 3.6, "match": "adjacent", "fresh": false}, {"company": "JetBrains", "website": "https://www.jetbrains.com", "role": "Senior Enterprise Account Executive - New Business", "city": "Amsterdam", "date": "2026-07-21", "url": "https://job-boards.eu.greenhouse.io/jetbrains/jobs/4931916101", "score": 2.0, "match": "broad", "fresh": false}, {"company": "JetBrains", "website": "https://www.jetbrains.com", "role": "TeamCity Customer Success Engineer (Post Sales)", "city": "Amsterdam", "date": "2026-07-02", "url": "https://job-boards.eu.greenhouse.io/jetbrains/jobs/4907441101", "score": 4.4, "match": "broad", "fresh": false}, {"company": "Jump Trading", "website": "https://www.jumptrading.com", "role": "Campus Quantitative Researcher (Full-Time)", "city": "London; Amsterdam", "date": "2026-07-13", "url": "https://www.jumptrading.com/hr/job?gh_jid=8050796", "score": 3.8, "match": "broad", "fresh": false}, {"company": "Jump Trading", "website": "https://www.jumptrading.com", "role": "Campus Quantitative Researcher (Intern)", "city": "London; Amsterdam", "date": "2026-07-13", "url": "https://www.jumptrading.com/hr/job?gh_jid=8010307", "score": 3.1, "match": "broad", "fresh": false}, {"company": "Jump Trading", "website": "https://www.jumptrading.com", "role": "Campus Quantitative Trader (Intern)", "city": "London; Amsterdam", "date": "2026-07-13", "url": "https://www.jumptrading.com/hr/job?gh_jid=8050772", "score": 3.1, "match": "broad", "fresh": false}, {"company": "Jump Trading", "website": "https://www.jumptrading.com", "role": "Campus Systems Engineer (Full-Time)", "city": "Amsterdam", "date": "2026-07-13", "url": "https://www.jumptrading.com/hr/job?gh_jid=8008306", "score": 2.9, "match": "adjacent", "fresh": false}, {"company": "Jump Trading", "website": "https://www.jumptrading.com", "role": "Campus Systems Engineer (Intern)", "city": "London; Amsterdam", "date": "2026-07-13", "url": "https://www.jumptrading.com/hr/job?gh_jid=8000323", "score": 4.2, "match": "adjacent", "fresh": false}, {"company": "Optiver", "website": "https://www.optiver.com", "role": "Career Kickstarter: Tech", "city": "Amsterdam", "date": "2026-07-17", "url": "https://www.optiver.com/join-us/jobs/8626581002/?gh_jid=8626581002", "score": 3.6, "match": "adjacent", "fresh": false}, {"company": "Optiver", "website": "https://www.optiver.com", "role": "Quantitative Developer - Pricing Data", "city": "Amsterdam", "date": "2026-07-14", "url": "https://www.optiver.com/join-us/jobs/8632528002/?gh_jid=8632528002", "score": 7.6, "match": "adjacent", "fresh": false}, {"company": "Optiver", "website": "https://www.optiver.com", "role": "Security Engineer", "city": "Amsterdam", "date": "2026-06-29", "url": "https://www.optiver.com/join-us/jobs/8580422002/?gh_jid=8580422002", "score": 7.1, "match": "target", "fresh": false}, {"company": "Optiver", "website": "https://www.optiver.com", "role": "Software Engineer - Research Infrastructure", "city": "Amsterdam", "date": "2026-07-10", "url": "https://www.optiver.com/join-us/jobs/8622246002/?gh_jid=8622246002", "score": 6.4, "match": "target", "fresh": false}, {"company": "Storyteq", "website": "https://storyteq.com", "role": "Senior Full Stack Engineer - PHP (Laravel)", "city": "", "date": "2026-07-13", "url": "https://apply.workable.com/j/6C529DB5AE", "score": 5.3, "match": "adjacent", "fresh": false}, {"company": "RevoData", "website": "https://revodata.nl", "role": "(Databricks) AI Instructor", "city": "Amsterdam", "date": "2026-07-10", "url": "https://apply.workable.com/j/716BC65850", "score": 4.0, "match": "adjacent", "fresh": false}, {"company": "Keylane", "website": "https://www.keylane.com", "role": "AI Solutions Engineer", "city": "Utrecht", "date": "2026-06-22", "url": "https://apply.workable.com/j/23C4B81FF8", "score": 4.0, "match": "adjacent", "fresh": false}, {"company": "Keylane", "website": "https://www.keylane.com", "role": "Java Software Engineer", "city": "Rotterdam", "date": "2026-07-21", "url": "https://apply.workable.com/j/988DD9269C", "score": 7.6, "match": "target", "fresh": false}, {"company": "Keylane", "website": "https://www.keylane.com", "role": "Product Owner", "city": "Rotterdam", "date": "2026-07-09", "url": "https://apply.workable.com/j/29CBB9F1E7", "score": 2.2, "match": "adjacent", "fresh": false}, {"company": "Keylane", "website": "https://www.keylane.com", "role": "Senior Software Engineer (AI \u0026 Orchestration)", "city": "Utrecht", "date": "2026-06-22", "url": "https://apply.workable.com/j/A0D0BB1DFE", "score": 8.0, "match": "target", "fresh": false}, {"company": "Enjins", "website": "https://enjins.com", "role": "Forward Deployed AI Engineer", "city": "Utrecht", "date": "2026-07-17", "url": "https://apply.workable.com/j/E054E584FC", "score": 2.7, "match": "adjacent", "fresh": false}, {"company": "Conflux", "website": "https://www.conflux.nl", "role": "Data \u0026 AI Consultant", "city": "Utrecht", "date": "2026-07-13", "url": "https://apply.workable.com/j/6F0E5B49E7", "score": 3.3, "match": "adjacent", "fresh": false}, {"company": "Conflux", "website": "https://www.conflux.nl", "role": "Java Developer", "city": "Utrecht", "date": "2026-07-08", "url": "https://apply.workable.com/j/656B6F0DC8", "score": 10.0, "match": "target", "fresh": false}, {"company": "Conflux", "website": "https://www.conflux.nl", "role": "Machine Learning Engineer", "city": "Utrecht", "date": "2026-07-13", "url": "https://apply.workable.com/j/8D7E777519", "score": 9.3, "match": "target", "fresh": false}, {"company": "Conflux", "website": "https://www.conflux.nl", "role": "Senior Corporate Tech Recruiter", "city": "Utrecht", "date": "2026-07-08", "url": "https://apply.workable.com/j/779319A8BC", "score": 3.3, "match": "broad", "fresh": false}, {"company": "Conflux", "website": "https://www.conflux.nl", "role": "Senior Data Engineer", "city": "Utrecht", "date": "2026-06-23", "url": "https://apply.workable.com/j/A8C5321F60", "score": 9.1, "match": "target", "fresh": false}, {"company": "Cordys Analytics", "website": "", "role": "Software Engineer", "city": "Utrecht", "date": "2026-07-20", "url": "https://apply.workable.com/j/AB80939936", "score": 9.8, "match": "target", "fresh": false}, {"company": "Deployteq", "website": "https://deployteq.com", "role": "Medior Software Engineer", "city": "Zeist", "date": "2026-07-10", "url": "https://apply.workable.com/j/5246F389F7", "score": 7.3, "match": "target", "fresh": false}, {"company": "Elements", "website": "https://www.elements.nl", "role": "Medior Golang Developer with Python knowledge", "city": "Amsterdam", "date": "2026-07-10", "url": "https://apply.workable.com/j/DA47C8CE29", "score": 10.0, "match": "target", "fresh": false}, {"company": "Elements", "website": "https://www.elements.nl", "role": "Senior Python/Django Developer eager to learn Golang", "city": "Amsterdam", "date": "2026-07-10", "url": "https://apply.workable.com/j/FDE183F157", "score": 10.0, "match": "adjacent", "fresh": false}, {"company": "Elements", "website": "https://www.elements.nl", "role": "Strong Medior/Senior React Native Developer", "city": "Amsterdam", "date": "2026-07-01", "url": "https://apply.workable.com/j/8595E01CE9", "score": 7.6, "match": "adjacent", "fresh": false}, {"company": "MLabs", "website": "", "role": "Founding DevRel", "city": "", "date": "2026-06-30", "url": "https://apply.workable.com/j/8A13F7EC9A", "score": 4.7, "match": "adjacent", "fresh": false}, {"company": "MLabs", "website": "", "role": "Head of Community", "city": "", "date": "2026-06-30", "url": "https://apply.workable.com/j/C8B22B74F1", "score": 3.6, "match": "broad", "fresh": false}, {"company": "MLabs", "website": "", "role": "KOL \u0026 Community Growth", "city": "", "date": "2026-06-25", "url": "https://apply.workable.com/j/899A88B40C", "score": 2.2, "match": "broad", "fresh": false}, {"company": "MLabs", "website": "", "role": "Principal Solutions Engineer", "city": "", "date": "2026-07-08", "url": "https://apply.workable.com/j/06CE6D2119", "score": 3.6, "match": "adjacent", "fresh": false}, {"company": "MLabs", "website": "", "role": "Senior Infrastructure Engineer", "city": "", "date": "2026-07-08", "url": "https://apply.workable.com/j/14C3CD385F", "score": 7.1, "match": "adjacent", "fresh": false}, {"company": "MLabs", "website": "", "role": "VP Institutional Sales", "city": "", "date": "2026-07-15", "url": "https://apply.workable.com/j/8BE7B5B1F3", "score": 2.7, "match": "broad", "fresh": false}, {"company": "MLabs", "website": "", "role": "Web Scraping Specialist", "city": "", "date": "2026-06-26", "url": "https://apply.workable.com/j/3CC539284C", "score": 3.6, "match": "adjacent", "fresh": false}, {"company": "Mendix", "website": "https://www.mendix.com", "role": "Senior Software Engineer- IAM", "city": "Rotterdam", "date": "2026-07-08", "url": "https://jobs.lever.co/mendix/0184ee07-ce64-42ba-863c-a5bf84a066f6", "score": 3.8, "match": "target", "fresh": false}, {"company": "Dash0", "website": "https://www.dash0.com", "role": "Commercial Solutions Architect", "city": "Amsterdam", "date": "2026-06-24", "url": "https://jobs.ashbyhq.com/dash0/88dc8222-497c-4d58-ad5b-e862a6602c51", "score": 3.8, "match": "broad", "fresh": false}, {"company": "Dash0", "website": "https://www.dash0.com", "role": "Enterprise Account Executive - Nordics", "city": "EMEA - Remote", "date": "2026-06-22", "url": "https://jobs.ashbyhq.com/dash0/b811ad6d-b00c-4011-94ec-1c72601b5d62", "score": 2.7, "match": "broad", "fresh": false}, {"company": "Dash0", "website": "https://www.dash0.com", "role": "Enterprise Account Executive - DACH", "city": "Germany - remote", "date": "2026-06-22", "url": "https://jobs.ashbyhq.com/dash0/e47e0d4b-a074-40fb-bdc8-4c132493d631", "score": 2.7, "match": "broad", "fresh": false}, {"company": "Dash0", "website": "https://www.dash0.com", "role": "Enterprise Account Executive - Benelux", "city": "EMEA - Remote", "date": "2026-06-22", "url": "https://jobs.ashbyhq.com/dash0/59f29062-6fd0-4989-b2b4-933b58cc7a55", "score": 2.7, "match": "broad", "fresh": false}, {"company": "Dash0", "website": "https://www.dash0.com", "role": "Director of Engineering, AI", "city": "EMEA - Remote", "date": "2026-06-26", "url": "https://jobs.ashbyhq.com/dash0/bd5e12ae-968b-422e-8cd3-f89effb5ebb5", "score": 2.4, "match": "adjacent", "fresh": false}, {"company": "Vapi", "website": "https://vapi.ai", "role": "Solutions Engineer - EMEA", "city": "Amsterdam", "date": "2026-07-03", "url": "https://jobs.ashbyhq.com/vapi/dce1928f-b432-4d6b-8c2f-b7c63c672310", "score": 2.0, "match": "adjacent", "fresh": false}, {"company": "Monumental", "website": "https://www.monumental.co", "role": "Software Engineer, Generalist", "city": "Amsterdam", "date": "2026-07-14", "url": "https://jobs.ashbyhq.com/monumental/1dec36d8-c26f-432d-8c79-9e4c3d0df18f", "score": 5.3, "match": "target", "fresh": false}, {"company": "Monumental", "website": "https://www.monumental.co", "role": "Hardware Engineer, Manufacturing", "city": "Amsterdam", "date": "2026-07-14", "url": "https://jobs.ashbyhq.com/monumental/5f03d400-5768-4976-a6f9-2f9cf43efb07", "score": 2.2, "match": "adjacent", "fresh": false}, {"company": "Monumental", "website": "https://www.monumental.co", "role": "Mechanical Engineer, Reliability", "city": "Amsterdam", "date": "2026-07-14", "url": "https://jobs.ashbyhq.com/monumental/1c764dae-66ad-45d9-befd-a96d922f7b2d", "score": 2.0, "match": "broad", "fresh": false}, {"company": "Monumental", "website": "https://www.monumental.co", "role": "Mechanical Engineer", "city": "Amsterdam", "date": "2026-07-21", "url": "https://jobs.ashbyhq.com/monumental/31f5ebe3-65cf-4bd4-b93b-ff1816607a00", "score": 2.0, "match": "adjacent", "fresh": false}, {"company": "Monumental", "website": "https://www.monumental.co", "role": "Forward Deployed Robotics Engineer", "city": "Amsterdam", "date": "2026-07-21", "url": "https://jobs.ashbyhq.com/monumental/8c6037b8-30aa-4c1b-a155-b0fd18a32ee7", "score": 2.0, "match": "adjacent", "fresh": false}, {"company": "Monumental", "website": "https://www.monumental.co", "role": "Software Engineer, Product", "city": "Amsterdam", "date": "2026-07-21", "url": "https://jobs.ashbyhq.com/monumental/22e68743-67a2-4e88-8101-8b2d9b6247ac", "score": 5.1, "match": "target", "fresh": false}, {"company": "Orb", "website": "https://www.withorb.com", "role": "Technical Support Engineer - Amsterdam", "city": "Amsterdam", "date": "2026-07-10", "url": "https://jobs.ashbyhq.com/orb/3197e844-cf70-47b2-9a90-df64393e9e5b", "score": 3.1, "match": "adjacent", "fresh": false}, {"company": "Flow Traders", "website": "https://www.flowtraders.com", "role": "Engineering Manager", "city": "Amsterdam", "date": "2026-07-01", "url": "https://job-boards.greenhouse.io/flowtraders/jobs/7835758", "score": 2.4, "match": "adjacent", "fresh": false}, {"company": "Flow Traders", "website": "https://www.flowtraders.com", "role": "Senior Research Engineer (Based in Hong Kong)", "city": "Amsterdam", "date": "2026-06-21", "url": "https://job-boards.greenhouse.io/flowtraders/jobs/8020047", "score": 5.6, "match": "adjacent", "fresh": false}, {"company": "Flow Traders", "website": "https://www.flowtraders.com", "role": "Senior Software Engineer, C++", "city": "Amsterdam", "date": "2026-06-24", "url": "https://job-boards.greenhouse.io/flowtraders/jobs/8025933", "score": 6.2, "match": "target", "fresh": false}, {"company": "Flow Traders", "website": "https://www.flowtraders.com", "role": "Staff Engineer, Trading Automation and Backend Platforms", "city": "Amsterdam", "date": "2026-07-08", "url": "https://job-boards.greenhouse.io/flowtraders/jobs/8035201", "score": 3.8, "match": "adjacent", "fresh": false}, {"company": "Bynder", "website": "https://www.bynder.com", "role": "IT Engineer", "city": "Amsterdam", "date": "2026-06-24", "url": "https://jobs.ashbyhq.com/bynder/fd54817c-086d-4f13-87d7-2b9b2df2d8f4", "score": 2.0, "match": "broad", "fresh": false}, {"company": "Trifork", "website": "https://trifork.com", "role": "Frontend Developer", "city": "Amsterdam", "date": "2026-06-30", "url": "https://trifork.homerun.co/frontend-developer-2", "score": 2.7, "match": "target", "fresh": false}, {"company": "Trifork", "website": "https://trifork.com", "role": "Senior Data Scientist - Trifork Digital Health", "city": "Amsterdam", "date": "2026-07-13", "url": "https://trifork.homerun.co/senior-data-scientist-trifork-digital-health", "score": 2.7, "match": "target", "fresh": false}, {"company": "Peaks", "website": "https://www.peaks.com", "role": "iOS Developer", "city": "Amsterdam", "date": "2026-07-17", "url": "https://peaks.homerun.co/ios-developer-5", "score": 2.7, "match": "adjacent", "fresh": false}, {"company": "Sytac", "website": "https://sytac.io", "role": "Senior Data Scientist", "city": "Utrecht", "date": "2026-07-16", "url": "https://job-boards.eu.greenhouse.io/sytac/jobs/4929677101", "score": 6.7, "match": "target", "fresh": false}, {"company": "Sytac", "website": "https://sytac.io", "role": "Senior Platform Engineer", "city": "Amsterdam", "date": "2026-07-16", "url": "https://job-boards.eu.greenhouse.io/sytac/jobs/4929657101", "score": 4.4, "match": "target", "fresh": false}, {"company": "Sytac", "website": "https://sytac.io", "role": "Tech Recruiter", "city": "Amsterdam", "date": "2026-07-07", "url": "https://job-boards.eu.greenhouse.io/sytac/jobs/4921011101", "score": 4.4, "match": "broad", "fresh": false}, {"company": "DataSnipper", "website": "https://www.datasnipper.com", "role": "Senior Site Reliability Engineer", "city": "Amsterdam", "date": "2026-07-12", "url": "https://jobs.ashbyhq.com/datasnipper/6fa73552-f0da-4e78-8863-8b4e661739f5", "score": 10.0, "match": "target", "fresh": false}, {"company": "DataSnipper", "website": "https://www.datasnipper.com", "role": "Senior Software Engineer, AI Agents", "city": "Amsterdam", "date": "2026-07-12", "url": "https://jobs.ashbyhq.com/datasnipper/4b98cae3-3391-44fd-a71d-ea7d2e6cfba3", "score": 6.9, "match": "target", "fresh": false}, {"company": "DataSnipper", "website": "https://www.datasnipper.com", "role": "Solutions Engineer - Audit \u0026 Accounting", "city": "Amsterdam", "date": "2026-07-21", "url": "https://jobs.ashbyhq.com/datasnipper/ae938ab7-ffcf-44f7-a763-561f105621e8", "score": 2.2, "match": "adjacent", "fresh": false}, {"company": "DataSnipper", "website": "https://www.datasnipper.com", "role": "Senior Full-Stack Engineer, Agent Experiences", "city": "Amsterdam", "date": "2026-07-20", "url": "https://jobs.ashbyhq.com/datasnipper/87fc9f12-01bb-4ea9-94a7-8fc5ac5ea816", "score": 3.3, "match": "adjacent", "fresh": false}, {"company": "DataSnipper", "website": "https://www.datasnipper.com", "role": "Solutions Architect", "city": "Amsterdam", "date": "2026-07-12", "url": "https://jobs.ashbyhq.com/datasnipper/9107adc9-e231-4f4c-b745-1d4d262ad104", "score": 2.7, "match": "broad", "fresh": false}, {"company": "DataSnipper", "website": "https://www.datasnipper.com", "role": "GTM Engineer", "city": "Amsterdam", "date": "2026-07-12", "url": "https://jobs.ashbyhq.com/datasnipper/5820263e-a066-4217-a0b2-6ce8eaad663d", "score": 2.7, "match": "adjacent", "fresh": false}, {"company": "DataSnipper", "website": "https://www.datasnipper.com", "role": "Engineering Manager, Excel Agents", "city": "Amsterdam", "date": "2026-07-20", "url": "https://jobs.ashbyhq.com/datasnipper/9b3b0601-2969-480f-9bdb-80c4985a13da", "score": 3.8, "match": "adjacent", "fresh": false}, {"company": "DataSnipper", "website": "https://www.datasnipper.com", "role": "Audit and Finance Professionals - Join DataSnipper", "city": "Amsterdam", "date": "2026-07-12", "url": "https://jobs.ashbyhq.com/datasnipper/07bd26e6-e3fa-4e37-bbe5-1d91ae0615e0", "score": 2.2, "match": "broad", "fresh": false}, {"company": "DataSnipper", "website": "https://www.datasnipper.com", "role": "Senior Technical Product Manager — Agent Runtime", "city": "Amsterdam", "date": "2026-07-12", "url": "https://jobs.ashbyhq.com/datasnipper/ea4bb202-d0c8-40e2-868d-0ee6f5b80f65", "score": 2.9, "match": "adjacent", "fresh": false}, {"company": "DataSnipper", "website": "https://www.datasnipper.com", "role": "Senior Technical Product Manager — Document Intelligence", "city": "Amsterdam", "date": "2026-07-12", "url": "https://jobs.ashbyhq.com/datasnipper/a119db02-8cee-458b-866c-8a4d4d4df64d", "score": 2.9, "match": "adjacent", "fresh": false}, {"company": "DataSnipper", "website": "https://www.datasnipper.com", "role": "Director of Information Security", "city": "Amsterdam", "date": "2026-07-12", "url": "https://jobs.ashbyhq.com/datasnipper/169c492b-0587-4281-b230-e973cf247ef6", "score": 2.7, "match": "broad", "fresh": false}, {"company": "DataSnipper", "website": "https://www.datasnipper.com", "role": "Senior Software Engineer (Financial Statement Suite)", "city": "Amsterdam", "date": "2026-07-12", "url": "https://jobs.ashbyhq.com/datasnipper/05e09cca-aa8a-49da-b2f1-64d83655d687", "score": 9.1, "match": "target", "fresh": false}, {"company": "DataSnipper", "website": "https://www.datasnipper.com", "role": "Senior Software Engineer Document Intelligence", "city": "Amsterdam", "date": "2026-07-12", "url": "https://jobs.ashbyhq.com/datasnipper/54418200-d08d-4d48-af98-bdfe67fda770", "score": 7.1, "match": "target", "fresh": false}];
+  LEADS.forEach(function(l){
+    l.id = l.company.toLowerCase().replace(/[^a-z0-9]+/g,"-") + "__" + l.role.toLowerCase().replace(/[^a-z0-9]+/g,"-");
+    l.dObj = new Date(l.date + "T00:00:00");
+    l.daysAgo = Math.round((WEEK_REF - l.dObj)/DAY);
+    l.fresh = l.daysAgo <= 7;      // VERS-badge: enkel de nieuwste (≤ vers_days)
+  });
+
+  var MATCH_LABEL = { target:"Doelfunctie", adjacent:"Gerelateerd", broad:"Breed" };
+
+  var STORE_KEY = "scrapehunter_status__it_randstad__v1";
+  var statusMap = {};
+  try{ statusMap = JSON.parse(localStorage.getItem(STORE_KEY) || "{}"); }catch(e){ statusMap = {}; }
+  var STATUSES = [
+    {v:"call",   label:"Te bellen", cls:"s-call"},
+    {v:"called", label:"Gebeld",    cls:"s-called"},
+    {v:"appt",   label:"Afspraak",  cls:"s-appt"},
+    {v:"won",    label:"Gewonnen",  cls:"s-won"},
+    {v:"no",     label:"Geen match",cls:"s-no"}
+  ];
+  function statusOf(id){ return statusMap[id] || "call"; }
+  function stMeta(v){ for(var i=0;i<STATUSES.length;i++){ if(STATUSES[i].v===v) return STATUSES[i]; } return STATUSES[0]; }
+
+  var state = { q:"", city:"", match:"all", freshOnly:false, recency:"", sort:"date", dir:-1 };
+
+  var $ = function(s){ return document.querySelector(s); };
+  function opts(sel, values, label){
+    var el = $(sel);
+    el.innerHTML = '<option value="">'+label+'</option>' + values.map(function(v){ return '<option value="'+v+'">'+v+'</option>'; }).join("");
+  }
+  function uniq(key){ var s={}; LEADS.forEach(function(l){ s[l[key]]=1; }); return Object.keys(s).sort(); }
+
+  function whenTxt(l){
+    if(l.daysAgo<=0) return "vandaag";
+    if(l.daysAgo===1) return "1 dag";
+    return l.daysAgo + " dgn";
+  }
+  function esc(s){ return String(s).replace(/[&<>"]/g,function(c){ return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]; }); }
+  function httpUrl(u){ u = String(u==null?"":u).trim(); return /^https?:\/\//i.test(u) ? u : ""; }
+
+  function filtered(){
+    var q = state.q.trim().toLowerCase();
+    var out = LEADS.filter(function(l){
+      if(state.city && l.city!==state.city) return false;
+      if(state.match!=="all" && l.match!==state.match) return false;
+      if(state.freshOnly && !l.fresh) return false;
+      if(state.recency && l.daysAgo > +state.recency) return false;
+      if(q && (l.company.toLowerCase().indexOf(q)<0 && l.role.toLowerCase().indexOf(q)<0)) return false;
+      return true;
+    });
+    out.sort(function(a,b){
+      var k = state.sort, av, bv;
+      if(k==="date"){ av=a.dObj; bv=b.dObj; }
+      else if(k==="score"){ av=a.score; bv=b.score; }
+      else { av=String(a[k]).toLowerCase(); bv=String(b[k]).toLowerCase(); }
+      if(av<bv) return -1*state.dir;
+      if(av>bv) return 1*state.dir;
+      return 0;
+    });
+    return out;
+  }
+
+  function renderKpis(){
+    var fresh = LEADS.filter(function(l){ return l.fresh; }).length;
+    var cos = uniq("company").length;
+    var avg = (LEADS.reduce(function(s,l){ return s+l.score; },0)/LEADS.length).toFixed(1);
+    var fam = {}; LEADS.forEach(function(l){
+      var f = /devops|kubernetes|platform|sre|reliability|cloud/i.test(l.role) ? "DevOps / Cloud"
+            : /data|machine learning|scientist/i.test(l.role) ? "Data / ML"
+            : /security|cyber/i.test(l.role) ? "Security"
+            : "Software Dev";
+      fam[f]=(fam[f]||0)+1;
+    });
+    var top = Object.keys(fam).sort(function(a,b){ return fam[b]-fam[a]; })[0];
+    var cards = [
+      {lbl:"Verse leads (≤7 dgn)", val:fresh, note:"deze week binnengekomen", accent:true},
+      {lbl:"Bedrijven met vacatures", val:cos, note:"unieke werkgevers"},
+      {lbl:"Gem. relevantie", val:avg, small:"/10", note:"kwaliteit van de match"},
+      {lbl:"Meest gevraagd", valTxt:top, note:fam[top]+" openstaande rollen"}
+    ];
+    $("#kpis").innerHTML = cards.map(function(c){
+      var v = c.valTxt ? '<div class="val" style="font-size:22px">'+esc(c.valTxt)+'</div>'
+                       : '<div class="val">'+c.val+(c.small?' <small>'+c.small+'</small>':'')+'</div>';
+      return '<div class="kpi'+(c.accent?' accent':'')+'"><div class="lbl">'+c.lbl+'</div>'+v+'<div class="note">'+c.note+'</div></div>';
+    }).join("");
+  }
+
+  function render(){
+    var rows = filtered();
+    var tb = $("#rows");
+    if(!rows.length){ tb.innerHTML = '<tr><td colspan="6" class="empty">Geen leads voor deze filters.</td></tr>'; }
+    else {
+      tb.innerHTML = rows.map(function(l){
+        var st = stMeta(statusOf(l.id));
+        var mid = l.score < 8 ? " mid" : "";
+        var opt = STATUSES.map(function(s){ return '<option value="'+s.v+'"'+(s.v===st.v?' selected':'')+'>'+s.label+'</option>'; }).join("");
+        var site = httpUrl(l.website);
+        var job = httpUrl(l.url);
+        return '<tr class="'+(l.fresh?'fresh':'')+'">'
+          + '<td class="co">'
+            + (site
+                ? '<a class="colink" href="'+esc(site)+'" target="_blank" rel="noopener noreferrer" aria-label="Bezoek website van '+esc(l.company)+'">'+esc(l.company)+'<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M14 5h5v5M19 5l-8 8M12 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-5"/></svg></a>'
+                : esc(l.company))
+            + '</td>'
+          + '<td><div class="role"><span class="rolename">'+esc(l.role)+'</span>'
+            + (l.fresh?'<span class="fresh-badge"><span class="d"></span>VERS</span>':'')+'</div>'
+            + '<div class="rowmeta"><span class="chip m-'+l.match+'">'+MATCH_LABEL[l.match]+'</span>'
+            + (job
+                ? '<a class="joblink" href="'+esc(job)+'" target="_blank" rel="noopener noreferrer" aria-label="Bekijk vacature bij '+esc(l.company)+'">Bekijk vacature <span class="arw" aria-hidden="true">→</span></a>'
+                : '')
+            + '</div></td>'
+          + '<td class="city">'+esc(l.city)+'</td>'
+          + '<td class="when">'+whenTxt(l)+'</td>'
+          + '<td><div class="score"><span class="bar"><span class="fill'+mid+'" style="width:'+(l.score*10)+'%"></span></span><span class="n">'+l.score.toFixed(1)+'</span></div></td>'
+          + '<td class="statuscell"><select class="statuspill '+st.cls+'" data-id="'+l.id+'" aria-label="Status voor '+esc(l.company)+'">'+opt+'</select></td>'
+          + '</tr>';
+      }).join("");
+    }
+    $("#shown").textContent = rows.length;
+    $("#total").textContent = LEADS.length;
+    updateArrows();
+  }
+
+  function updateArrows(){
+    document.querySelectorAll("thead th.sortable").forEach(function(th){
+      var a = th.querySelector(".arr");
+      if(th.dataset.sort===state.sort){ a.textContent = state.dir===1 ? "▲" : "▼"; }
+      else { a.textContent = ""; }
+    });
+  }
+
+  // events
+  $("#q").addEventListener("input", function(e){ state.q=e.target.value; render(); });
+  $("#city").addEventListener("change", function(e){ state.city=e.target.value; render(); });
+  $("#recency").addEventListener("change", function(e){ state.recency=e.target.value; render(); });
+  $("#freshOnly").addEventListener("change", function(e){ state.freshOnly=e.target.checked; render(); });
+  document.querySelectorAll("#matchSeg button").forEach(function(b){
+    b.addEventListener("click", function(){
+      state.match=b.dataset.m;
+      document.querySelectorAll("#matchSeg button").forEach(function(x){ x.setAttribute("aria-pressed", x===b?"true":"false"); });
+      render();
+    });
+  });
+  document.querySelectorAll("thead th.sortable").forEach(function(th){
+    th.addEventListener("click", function(){
+      var k=th.dataset.sort;
+      if(state.sort===k){ state.dir*=-1; } else { state.sort=k; state.dir = (k==="score"||k==="date") ? -1 : 1; }
+      render();
+    });
+  });
+  $("#rows").addEventListener("change", function(e){
+    var sel = e.target.closest(".statuspill"); if(!sel) return;
+    var id = sel.dataset.id, v = sel.value;
+    if(v==="call"){ delete statusMap[id]; } else { statusMap[id]=v; }
+    try{ localStorage.setItem(STORE_KEY, JSON.stringify(statusMap)); }catch(err){}
+    sel.className = "statuspill " + stMeta(v).cls;
+    flashSaved();
+  });
+  var savedT;
+  function flashSaved(){
+    var n=$("#savednote"); n.textContent="✓ status bewaard"; n.style.color="var(--good)";
+    clearTimeout(savedT); savedT=setTimeout(function(){ n.textContent=""; }, 1600);
+  }
+  $("#resetBtn").addEventListener("click", function(){
+    state.q=""; state.city=""; state.match="all"; state.freshOnly=false; state.recency=""; state.sort="date"; state.dir=-1;
+    $("#q").value=""; $("#city").value=""; $("#recency").value=""; $("#freshOnly").checked=false;
+    document.querySelectorAll("#matchSeg button").forEach(function(x){ x.setAttribute("aria-pressed", x.dataset.m==="all"?"true":"false"); });
+    render();
+  });
+  $("#csvBtn").addEventListener("click", function(){
+    var rows = filtered();
+    var head = ["Bedrijf","Bedrijfssite","Functie","Stad","Geplaatst","Match","Relevantie","Link","Status"];
+    var lines = [head.join(";")].concat(rows.map(function(l){
+      return [l.company, l.website||"", l.role, l.city, l.date, MATCH_LABEL[l.match], l.score.toFixed(1), l.url||"", stMeta(statusOf(l.id)).label]
+        .map(function(c){ c=String(c); if(/^[=+\-@]/.test(c)){ c="'"+c; } return /[";\n]/.test(c) ? '"'+c.replace(/"/g,'""')+'"' : c; }).join(";");
+    }));
+    var blob = new Blob(["﻿"+lines.join("\r\n")], {type:"text/csv;charset=utf-8"});
+    var a = document.createElement("a");
+    a.href = URL.createObjectURL(blob); a.download = "scrapehunter-weeklijst-2026-07-21.csv";
+    document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  });
+
+  // theme
+  var sun = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="4.5"/><path d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4" stroke-linecap="round"/></svg>';
+  var moon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12.8A8.5 8.5 0 1111.2 3a6.6 6.6 0 009.8 9.8z"/></svg>';
+  function curTheme(){ return document.documentElement.getAttribute("data-theme") || (matchMedia("(prefers-color-scheme:dark)").matches ? "dark":"light"); }
+  function setBtn(){ $("#themeBtn").innerHTML = curTheme()==="dark" ? sun : moon; }
+  var savedTheme = null; try{ savedTheme = localStorage.getItem("scrapehunter_theme"); }catch(e){}
+  if(savedTheme){ document.documentElement.setAttribute("data-theme", savedTheme); }
+  $("#themeBtn").addEventListener("click", function(){
+    var next = curTheme()==="dark" ? "light":"dark";
+    document.documentElement.setAttribute("data-theme", next);
+    try{ localStorage.setItem("scrapehunter_theme", next); }catch(e){}
+    setBtn();
+  });
+
+  // init
+  opts("#city", uniq("city"), "Alle steden");
+  setBtn();
+  renderKpis();
+  render();
+})();
+</script>
+</body>
+</html>
